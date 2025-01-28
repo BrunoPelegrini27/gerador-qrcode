@@ -22,4 +22,4 @@ Este é um projeto simples para gerar QR Codes a partir de links. Basta inserir 
 Este projeto está hospedado no GitHub Pages. Acesse [aqui](https://BrunoPelegrini27.github.io/gerador-qrcode/).
 
 ## Autor
-[Seu Nome](https://github.com/BrunoPelegrini27)
+Bruno Pelegrini (https://github.com/BrunoPelegrini27)
