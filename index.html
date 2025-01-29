@@ -26,13 +26,12 @@
             margin-bottom: 20px;
             color: #333;
         }
-        input[type="text"], input[type="number"] {
+        input[type="text"] {
             padding: 10px;
             width: 300px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
-            margin: 5px 0;
         }
         button {
             padding: 10px 20px;
@@ -54,7 +53,7 @@
         }
         .download-btn {
             margin-top: 20px;
-            display: none;
+            display: none; /* Escondido inicialmente */
         }
         .error {
             color: red;
@@ -67,98 +66,63 @@
     <div class="container">
         <h1>Gerador de QR Code</h1>
         <input type="text" id="linkInput" placeholder="Digite ou cole o link aqui">
-        <input type="number" id="numeroInput" placeholder="Digite o número (ex: 2025/05-0001)">
         <button onclick="gerarQRCode()">Gerar QR Code</button>
-        <div class="error" id="errorMsg">Por favor, preencha todos os campos corretamente.</div>
+        <div class="error" id="errorMsg">Por favor, insira um link válido.</div>
         <div id="qrcode"></div>
         <button class="download-btn" id="downloadBtn" onclick="downloadQRCode()">Baixar QR Code</button>
     </div>
 
+    <!-- Biblioteca QRCode.js -->
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script>
-        let qr = null;
-        const logoURL = 'const logoURL = 'https://raw.githubusercontent.com/BrunoPelegrini27/gerador-qrcode/14a9faf269af35681c9a9d369bb1f10177de74d1/logo.png';'; // Atualize com sua URL
-
         function gerarQRCode() {
             const link = document.getElementById('linkInput').value.trim();
-            const numero = document.getElementById('numeroInput').value.trim();
             const errorMsg = document.getElementById('errorMsg');
             const downloadBtn = document.getElementById('downloadBtn');
 
-            if (!link || !validarURL(link) || !numero) {
+            // Validação do link
+            if (!link || !validarURL(link)) {
                 errorMsg.style.display = 'block';
                 downloadBtn.style.display = 'none';
                 document.getElementById('qrcode').innerHTML = '';
                 return;
             }
 
+            // Limpa mensagens de erro e QR Code anterior
             errorMsg.style.display = 'none';
             document.getElementById('qrcode').innerHTML = '';
 
             try {
-                // Cria container para a imagem final
-                const container = document.createElement('div');
-                container.style.position = 'relative';
-                container.style.width = '47mm';
-                container.style.height = '12mm';
-                container.id = 'finalImage';
-                
-                // Gera QR Code
-                qr = new QRCode(container, {
+                // Gera o novo QR Code
+                new QRCode(document.getElementById('qrcode'), {
                     text: link,
-                    width: 70, // Ajuste para 70 pixels (≈12mm)
-                    height: 70,
+                    width: 256,
+                    height: 256,
                 });
 
-                // Adiciona elementos após a geração do QR
-                setTimeout(() => {
-                    const canvas = container.querySelector('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Adiciona número
-                    ctx.font = '12px Arial';
-                    ctx.fillStyle = 'black';
-                    ctx.fillText(numero, 80, 35);
-                    
-                    // Adiciona logo
-                    const logo = new Image();
-                    logo.crossOrigin = "Anonymous";
-                    logo.src = logoURL;
-                    logo.onload = () => {
-                        ctx.drawImage(logo, 150, 10, 30, 30);
-                    };
-                }, 100);
-
-                document.getElementById('qrcode').appendChild(container);
+                // Mostra o botão de download
                 downloadBtn.style.display = 'block';
             } catch (error) {
-                console.error('Erro:', error);
-                errorMsg.textContent = 'Erro ao gerar a imagem. Tente novamente.';
+                console.error('Erro ao gerar QR Code:', error);
+                errorMsg.textContent = 'Erro ao gerar QR Code. Tente novamente.';
                 errorMsg.style.display = 'block';
             }
         }
 
         function validarURL(url) {
+            // Expressão regular para validar URLs
             const padraoURL = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
             return padraoURL.test(url);
         }
 
         function downloadQRCode() {
-            const container = document.getElementById('finalImage');
-            const canvas = container.querySelector('canvas');
-            
-            // Cria canvas final com dimensões corretas
-            const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = 555; // 47mm em pixels (47 * 11.81)
-            finalCanvas.height = 141; // 12mm em pixels
-            
-            const ctx = finalCanvas.getContext('2d');
-            ctx.drawImage(canvas, 0, 0);
-            
-            const link = document.createElement('a');
-            link.href = finalCanvas.toDataURL('image/png');
-            link.download = 'codigo-' + document.getElementById('numeroInput').value + '.png';
-            link.click();
+            const qrcodeCanvas = document.querySelector('#qrcode canvas');
+            if (qrcodeCanvas) {
+                const link = document.createElement('a');
+                link.href = qrcodeCanvas.toDataURL('image/png');
+                link.download = 'qrcode.png';
+                link.click();
+            }
         }
     </script>
 </body>
